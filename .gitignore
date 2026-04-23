@@ -1,0 +1,14 @@
+# Build / IDE
+build/
+.vs/
+*.obj
+*.exe
+
+# Local database / secrets
+database.json
+
+# Logs / temp
+*.log
+
+# Visual Studio Code
+.vscode/
