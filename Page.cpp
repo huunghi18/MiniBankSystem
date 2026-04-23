@@ -75,12 +75,13 @@ void Page::processingPage()
         std::cout << "\r\n-----------------MAIN PAGE-----------------\r\n";
 
         std::cout << "\r\n1. Transaction";
-        std::cout << "\r\n2. ";
+        std::cout << "\r\n2. Check Balance";
         std::cout << "\r\n3. Exit";
         std::cout << "\r\nSelection: ";
 
         int choice;
-        std::cin >> choice;        
+        std::cin >> choice;
+                
         break;
     }
     default:
