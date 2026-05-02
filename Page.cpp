@@ -1,4 +1,5 @@
 #include "Page.h"
+#include "Transaction.h"
 
 Page::PAGENUM Page::getPage() const
 {
@@ -21,8 +22,9 @@ void Page::processingPage()
         std::cout << "\r\nSelection: ";
 
         int choice;
-        if (!(std::cin >> choice)) {
-            std::cin.clear(); // Xóa lỗi
+        if (!(std::cin >> choice))
+        {
+            std::cin.clear();                                                   // Xóa lỗi
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Xóa bộ đệm
             std::cout << "Invalid input!";
             break;
@@ -39,7 +41,7 @@ void Page::processingPage()
     case PAGENUM::LOGIN_PAGE:
     {
         std::cout << "\r\n-----------------LOGIN-----------------\r\n";
-        Account acc;
+        Account &acc = Account::AccountInstance();
         uint8_t ret = acc.login();
 
         if (ret)
@@ -56,7 +58,7 @@ void Page::processingPage()
     case PAGENUM::REGISTER_PAGE:
     {
         std::cout << "\r\n-----------------REGISTER-----------------\r\n";
-        Account acc;
+        Account &acc = Account::AccountInstance();
         uint8_t ret = acc.registerNewAccount();
         if (ret)
         {
@@ -74,14 +76,35 @@ void Page::processingPage()
     {
         std::cout << "\r\n-----------------MAIN PAGE-----------------\r\n";
 
-        std::cout << "\r\n1. Transaction";
-        std::cout << "\r\n2. Check Balance";
-        std::cout << "\r\n3. Exit";
+        std::cout << "\r\n1. Deposit";
+        std::cout << "\r\n2. Withdraw";
+        std::cout << "\r\n3. Transaction";
+        std::cout << "\r\n4. Check Balance";
+        std::cout << "\r\n0. Exit";
         std::cout << "\r\nSelection: ";
-
+        Transaction trans;
         int choice;
         std::cin >> choice;
-                
+        switch (choice)
+        {
+        case 1:
+            trans.deposit();
+            break;
+        case 2:
+            trans.withdraw();
+            break;
+        case 3:
+            trans.transac();
+            break;
+        case 4:
+            trans.checkBalance();
+            break;
+        case 0:
+            exit(0);
+            break;
+        default:
+            break;
+        }
         break;
     }
     default:

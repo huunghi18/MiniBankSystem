@@ -2,7 +2,7 @@
 #include <iostream>
 #include <limits>
 #include "Account.h"
-
+#include "Transaction.h"
 class Account;
 
 class Page
