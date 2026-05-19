@@ -2,7 +2,9 @@
 #include <iostream>
 #include <limits>
 #include "Account.h"
+#include "AccountRepository.h"
 #include "Transaction.h"
+
 class Account;
 
 class Page
@@ -19,7 +21,8 @@ public:
     PAGENUM getPage() const;
     void setPage(PAGENUM page);
 
-    void processingPage();
+    // pass current account and repository to keep state
+    void processingPage(Account &account, AccountRepository& accountRepo, Transaction& trans);
 
 private:
     PAGENUM m_page;

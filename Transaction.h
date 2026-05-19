@@ -1,10 +1,12 @@
 #pragma once
 #include <iostream>
 #include <stdint.h>
+#include "Account.h"
+
 class Transaction {
 public:
-    void deposit();
-    void withdraw();
-    bool transac();
-    uint32_t checkBalance() const;
+    bool deposit(Account &account);
+    bool withdraw(Account &account);
+    bool transfer(Account &account, AccountRepository &accountRepo);
+    void checkBalance(Account &account) const;
 };

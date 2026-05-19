@@ -5,70 +5,70 @@
 
 using json = nlohmann::json;
 
-Account::Account()
-{
-    std::ifstream inFile(m_dbPath);
-    if(inFile.is_open()) {  
-        inFile >> m_database;
-        inFile.close();
-    }
-}
-
-bool Account::registerNewAccount()
+bool Account::registerNewAccount(AccountRepository& accountRepo)
 {
     std::string username;
     std::string password;
     std::string acc_num;
+
     std::cout << "Enter Username: ";
-    std::getline(std::cin, username);
+    if (!std::getline(std::cin >> std::ws, username)) {
+        std::cerr << "ERROR: Input error reading username\n";
+        return false;
+    }
+
     std::cout << "Enter PassWord: ";
-    std::getline(std::cin, password);
+    if (!std::getline(std::cin >> std::ws, password)) {
+        std::cerr << "ERROR: Input error reading password\n";
+        return false;
+    }
+
     std::cout << "Enter Account Number: ";
-    std::getline(std::cin, acc_num);
-    std::cout << "account number" << acc_num;
+    if (!std::getline(std::cin >> std::ws, acc_num)) {
+        std::cerr << "ERROR: Input error reading account number\n";
+        return false;
+    }
 
-    if (username.empty() || password.empty())
+    if (username.empty() || password.empty() || acc_num.empty())
     {
+        std::cerr << "ERROR: Username or Password or Account number is empty";
         return false;
     }
 
 
-    if (database.contains(username) || database.contains(username)) {
-        std::cout << "Error: Username already exists!\n";
+    AccountRepository::User user;
+    user.accNum = acc_num;
+    user.balance = 0;
+    user.password = password;
+
+    if (!accountRepo.addUser(username, user, acc_num)) {
+        std::cerr << "ERROR: Failed to add user\n";
         return false;
     }
-
-    database[username] = {
-        {"password", password},
-        {"balance", 0},
-        {"accNum", acc_num}
-    };
-
-    std::ofstream outFile(m_dbPath);
-    if (outFile.is_open())
-    {
-        outFile << database.dump(4);
-        outFile.close();
-    }
-
+    std::cout << "Register successful! \n";
     return true;
 }
 
-bool Account::login()
+bool Account::login(AccountRepository& accountRepo)
 {
     std::string username;
     std::string password;
     std::cout << "Enter Username: ";
-    std::cin >> username;
+    std::getline(std::cin >> std::ws, username);
     std::cout << "Enter PassWord: ";
-    std::cin >> password;
-    
-    if(!(m_database.contains(username) && m_database[username]["password"] == password)) {
+    std::getline(std::cin >> std::ws, password);
+
+    AccountRepository::User user;
+    if (!accountRepo.getUser(username, password, user)) {
         std::cout << "WRONG Username or Pass! Please Retry!\n";
         return false;
     }
+
     m_person.username = username;
-    m_person.balance = m_database[username]["balance"];
+    m_person.balance = user.balance;
+    m_person.accNum = user.accNum;
+    m_person.password = user.password;
+    std::cout << "Login successful!\n";
     return true;
 }
 
@@ -82,11 +82,15 @@ uint32_t Account::getBalance() const
     return m_person.balance; 
 }
 
-std::string Account::getAccountByNumber(std::string acc_num) const{
-    for (auto &[key,value] : m_database.items()) {
-        if(value["accNum"] == acc_num) {
-            return key;
-        }
-    }
-    return "";
+std::string Account::getAccountByNumber(AccountRepository& accountRepo, std::string acc_num) const{
+    return accountRepo.findUsernameByAccNum(acc_num);
+}
+
+void Account::logOut(AccountRepository& accountRepo) const
+{
+    AccountRepository::User user;
+    user.accNum = m_person.accNum;
+    user.balance = m_person.balance;
+    user.password = m_person.password;
+    accountRepo.updateUser(m_person.username, user);
 }

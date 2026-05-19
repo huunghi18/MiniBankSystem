@@ -2,36 +2,42 @@
 #include <stdint.h>
 #include "Account.h"
 
-void Transaction::deposit()
+bool Transaction::deposit(Account &account)
 {
     std::cout << "Input money to deposit: ";
     uint32_t money;
     std::cin >> money; 
-    Account &acc = Account::AccountInstance();
-    acc.setBalance((acc.getBalance() + money));
-    std::cout << "New balance: " << acc.getBalance();
+
+    account.setBalance((account.getBalance() + money));
+    std::cout << "New balance: " << account.getBalance();
+    return true;
 }
 
-void Transaction::withdraw()
+bool Transaction::withdraw(Account &account)
 {
-    Account &acc = Account::AccountInstance();
-    uint32_t now_balance = acc.getBalance();
-    std::cout << "Input money to withdraw (less than balance): ";
     uint32_t money;
-    do
-    {
-        std::cin >> money;
-    } while (money > now_balance);
-    
-    acc.setBalance(now_balance - money);
-    std::cout << "New balance: " << acc.getBalance();
+    uint32_t now_balance = account.getBalance();
+    std::cout << "Balance: " << now_balance << std::endl;
+    std::cout << "Input money to withdraw (Less than Balance): ";
+
+    std::cin >> money;
+    if (money > now_balance) {
+        std::cout << "ERROR: money to withdraw is more than balance";
+        return false;
+    }
+    account.setBalance(now_balance - money);
+    std::cout << "New balance: " << account.getBalance();
+    return true;
 }
 
-bool Transaction::transac()
+bool Transaction::transfer(Account &account, AccountRepository &accountRepo)
 {
-    std::cout << "Please input account number to transact: ";
-    std::string ret;   
+    std::cout << "Please input account number to transfer: ";
+    std::string usernameToTransfer;   
     std::string acc_num;
+    uint32_t moneyToTransfer;
+    uint32_t now_balance = account.getBalance();
+
     if (!(std::cin >> acc_num))
     {
         std::cin.clear();
@@ -40,21 +46,41 @@ bool Transaction::transac()
         return false;
     }
     
-    Account &acc = Account::AccountInstance();
-    ret = acc.getAccountByNumber(acc_num);
-    if(ret != "") {
-        std::cout << "Find account succesfull: " << ret;
-    }
-    else {
-        std:: cout << "Cannot find person";
+    usernameToTransfer = account.getAccountByNumber(accountRepo, acc_num);
+
+    if (acc_num == account.getAccountNumber()) {
+        std::cout << "ERROR: Cannot transfer to yourself!\n";
         return false;
     }
-    
+
+    if(usernameToTransfer != "") {
+        std::cout << "Find account succesfull: " << usernameToTransfer << std::endl;
+    }
+    else {
+        std:: cout << "Cannot find person\n";
+        return false;
+    }
+    std::cout << "Please input money to transfer: ";
+    if (!(std::cin >> moneyToTransfer))
+    {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Invalid input!\n";
+        return false;
+    }
+    if (moneyToTransfer > now_balance) {
+        std::cout << "ERROR: money to transfer is more than balance\n";
+        return false;
+    }
+    account.setBalance(now_balance - moneyToTransfer);
+    std::cout << "Transfer to: " << usernameToTransfer << " with " << moneyToTransfer << " successfully! \n";
+    std::cout << "New balance: " << account.getBalance() << std::endl;
+
+    accountRepo.notifyTranfer(usernameToTransfer, moneyToTransfer);
     return true;
 }
 
-uint32_t Transaction::checkBalance() const
+void Transaction::checkBalance(Account &account) const
 {
-    Account &acc = Account::AccountInstance();
-    return acc.getBalance();
+    std::cout << "Balance: "<< account.getBalance() << std::endl;
 }
